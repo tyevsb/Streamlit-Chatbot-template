@@ -39,26 +39,20 @@ else:
         with st.chat_message("user"):
             st.markdown(prompt)
 
-        # Generate a response using the OpenAI API.
+        # Generate a response using Groq client
         stream = client.chat.completions.create(
             model="llama3-70b-8192",
             messages=[
                 {"role": m["role"], "content": m["content"]}
                 for m in st.session_state.messages
             ],
-            stream=True,
+            stream=False,
         )
 
         # Stream the response to the chat using `st.write_stream`, then store it in 
         # session state.
-        
+        #response without stream 
+        response = stream.choices[0].message.content
         with st.chat_message("assistant"):
-            response_container = st.empty()
-            text = ""
-            for chunk in stream:
-                delta = chunk.choices[0].delta
-                if hasattr(delta, "content") and delta.content:
-                    text += delta.content
-                    response_container.markdown(text + "▌")
-            response_container.markdown(text)
-            st.session_state.messages.append({"role": "assistant", "content": text})
+            st.markdown(response)
+            st.session_state.messages.append({"role": "assistant", "content": response})
