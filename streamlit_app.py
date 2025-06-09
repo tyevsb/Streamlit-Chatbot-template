@@ -51,15 +51,14 @@ else:
 
         # Stream the response to the chat using `st.write_stream`, then store it in 
         # session state.
+        
         with st.chat_message("assistant"):
             response_container = st.empty()
-            full_response = ""
-
+            text = ""
             for chunk in stream:
-                if chunk.choices and chunk.choices[0].delta and chunk.choices[0].delta.content:
-                    content = chunk.choices[0].delta.content
-                    full_response += content
-                    response_container.markdown(full_response + "▌")
-
-            response_container.markdown(full_response)
-        st.session_state.messages.append({"role": "assistant", "content": full_response})
+                delta = chunk.choices[0].delta
+                if hasattr(delta, "content") and delta.content:
+                    text += delta.content
+                    response_container.markdown(text + "▌")
+            response_container.markdown(text)
+            st.session_state.messages.append({"role": "assistant", "content": text})
